@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Girlfriend 💖 Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <h2>💬 Chat with Your AI Girlfriend</h2>
+    <div class="selects">
+      <select id="language">
+        <option value="English">English</option>
+        <option value="Hindi">Hindi</option>
+        <option value="Spanish">Spanish</option>
+      </select>
+      <select id="gender">
+        <option value="Male">You are Male</option>
+        <option value="Female">You are Female</option>
+      </select>
+    </div>
+
+    <div id="chat-box"></div>
+
+    <div class="input-box">
+      <input type="text" id="user-input" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
