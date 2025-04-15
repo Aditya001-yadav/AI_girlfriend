@@ -12,7 +12,7 @@ function addMessage(message, sender, status = '') {
   // Add bot image if sender is AI
   if (sender === "ai") {
     const botImage = document.createElement("img");
-    botImage.src = "bot.jpg"; // Make sure this image exists in the 'pic' folder
+    botImage.src = "bot.jpg"; // Ensure this image exists in your project
     botImage.alt = "Bot";
     botImage.className = "bot-image";
     msg.appendChild(botImage);
@@ -34,16 +34,25 @@ function addMessage(message, sender, status = '') {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Convert image file to base64
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // Send a message (user + AI response)
 async function sendMessage() {
   const userMsg = input.value.trim();
-  if (!userMsg) return;
+  const imageFile = document.getElementById("image-upload").files[0];
 
-  const language = document.getElementById("language")?.value || "English";
-  const gender = document.getElementById("gender")?.value || "boy";
+  if (!userMsg && !imageFile) return;
 
   // Show user message
-  addMessage(userMsg, "user", "single");
+  addMessage(userMsg || "🖼️ [Image uploaded]", "user");
   input.value = "";
 
   // Simulate AI is typing...
@@ -51,45 +60,46 @@ async function sendMessage() {
     addMessage("Aditi is typing... 💬", "ai", "single");
   }, 500);
 
-  // Get AI response after 3 seconds
-  setTimeout(async () => {
-    try {
-      const prompt = `You are an emotionally supportive best friend. Your replies should feel human, understanding, and comforting. 
-- Adjust your tone to match the user's emotional state and language. 
-- If the user is short or casual, respond briefly. 
-- If the user is emotional, confused, or expressive, be more thoughtful and supportive.
-- Use emojis naturally and only when they enhance emotional connection (e.g., 😊❤️🥺). 
-- Never reveal you are an AI. Just be a real, caring friend who listens, understands, and responds genuinely. 
+  try {
+    let parts = [];
 
-The user is ${gender} and prefers ${language}. Reply to: "${userMsg}"`;
+    if (userMsg) parts.push({ text: userMsg });
 
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-          }),
-        }
-      );
-
-      const data = await response.json();
-      console.log("Gemini response:", data);
-
-      const aiText =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Aww 🥺 I didn’t get that...";
-
-      addMessage(aiText, "ai", "blue");
-    } catch (err) {
-      console.error("Error from Gemini API:", err);
-      addMessage("Something went wrong 💔 Please try again.", "ai", "blue");
+    if (imageFile) {
+      const base64Image = await toBase64(imageFile);
+      parts.push({
+        inline_data: {
+          mime_type: imageFile.type,
+          data: base64Image.split(',')[1], // remove base64 header
+        },
+      });
     }
-  }, 3000);
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{ parts }],
+        }),
+      }
+    );
+
+    const data = await response.json();
+    console.log("Gemini response:", data);
+
+    const aiText =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Aww 🥺 I didn’t get that...";
+
+    addMessage(aiText, "ai", "blue");
+  } catch (err) {
+    console.error("Error from Gemini API:", err);
+    addMessage("Something went wrong 💔 Please try again.", "ai", "blue");
+  }
 }
 
 // Send button click
@@ -99,8 +109,8 @@ sendButton.addEventListener("click", sendMessage);
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
-// Your existing API_KEY and sendMessage function remains same above
 
+// Emoji Picker functionality
 const emojiToggle = document.getElementById("emoji-toggle");
 const emojiPicker = document.getElementById("emoji-picker");
 
@@ -116,4 +126,3 @@ emojiPicker.addEventListener("click", (e) => {
     input.focus();
   }
 });
-
