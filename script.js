@@ -99,3 +99,21 @@ sendButton.addEventListener("click", sendMessage);
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
+// Your existing API_KEY and sendMessage function remains same above
+
+const emojiToggle = document.getElementById("emoji-toggle");
+const emojiPicker = document.getElementById("emoji-picker");
+
+// Toggle emoji panel
+emojiToggle.addEventListener("click", () => {
+  emojiPicker.classList.toggle("hidden");
+});
+
+// Add emoji to input
+emojiPicker.addEventListener("click", (e) => {
+  if (e.target.tagName === "SPAN") {
+    input.value += e.target.innerText;
+    input.focus();
+  }
+});
+
