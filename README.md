@@ -1,1 +1,1 @@
-# AI_girlfriend
+# AI_friend
