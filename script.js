@@ -48,7 +48,7 @@ async function sendMessage() {
 
   // Simulate AI is typing...
   setTimeout(() => {
-    addMessage("Ishika is typing... 💬", "ai", "single");
+    addMessage("Aditi is typing... 💬", "ai", "single");
   }, 500);
 
   // Get AI response after 3 seconds
