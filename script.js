@@ -4,16 +4,20 @@ const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
 const sendButton = document.getElementById("send-btn");
 
+let gender = "female";  // Example default, this can be dynamically set based on user preferences
+let language = "English";  // Example default, this can also be dynamically set
+let userName = ""; // The user's name will be stored once provided
+
 // Add a message to the chat box
 function addMessage(message, sender, status = '') {
   const msg = document.createElement("div");
   msg.className = `message ${sender}`;
 
-  // Add bot image if sender is AI
+  // Add bot image if sender is Ishika
   if (sender === "ai") {
     const botImage = document.createElement("img");
     botImage.src = "bot.jpg"; // Ensure this image exists in your project
-    botImage.alt = "Bot";
+    botImage.alt = "Ishika";
     botImage.className = "bot-image";
     msg.appendChild(botImage);
   }
@@ -44,7 +48,7 @@ function toBase64(file) {
   });
 }
 
-// Send a message (user + AI response)
+// Send a message (user + Ishika response)
 async function sendMessage() {
   const userMsg = input.value.trim();
   const imageFile = document.getElementById("image-upload").files[0];
@@ -55,9 +59,9 @@ async function sendMessage() {
   addMessage(userMsg || "🖼️ [Image uploaded]", "user");
   input.value = "";
 
-  // Simulate AI is typing...
+  // Simulate Ishika is typing...
   setTimeout(() => {
-    addMessage("Aditi is typing... 💬", "ai", "single");
+    addMessage("Ishika is typing... 💬", "ai", "single");
   }, 500);
 
   try {
@@ -75,6 +79,16 @@ async function sendMessage() {
       });
     }
 
+    // Personalized prompt for Ishika based on user's preferences
+    const prompt = `You are an emotionally supportive best friend. Your replies should feel human, understanding, and comforting. 
+    - Adjust your tone to match the user's emotional state and language. 
+    - If the user is short or casual, respond briefly. 
+    - If the user is emotional, confused, or expressive, be more thoughtful and supportive.
+    - Use emojis naturally and only when they enhance emotional connection (e.g., 😊❤️🥺). 
+    - Never reveal you are an AI. Just be a real, caring friend who listens, understands, and responds genuinely.
+
+    The user is ${gender} and prefers ${language}. Reply to: "${userMsg}"`;
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
       {
@@ -83,7 +97,11 @@ async function sendMessage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [{ parts }],
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
         }),
       }
     );
@@ -95,7 +113,12 @@ async function sendMessage() {
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Aww 🥺 I didn’t get that...";
 
-    addMessage(aiText, "ai", "blue");
+    // Add emotional support message if needed
+    if (aiText.includes("sad") || aiText.includes("hurt")) {
+      addMessage("I'm so sorry you're feeling that way. 😔 I'm here for you. 💖", "ai", "blue");
+    } else {
+      addMessage(aiText, "ai", "blue");
+    }
   } catch (err) {
     console.error("Error from Gemini API:", err);
     addMessage("Something went wrong 💔 Please try again.", "ai", "blue");
@@ -126,3 +149,15 @@ emojiPicker.addEventListener("click", (e) => {
     input.focus();
   }
 });
+
+// Function to get the user's name
+function getUserName() {
+  const name = prompt("Hi! What's your name?");
+  userName = name;
+  addMessage(`Hi, ${userName}! 😊 I'm Ishika. How are you feeling today?`, "ai");
+}
+
+// Trigger for the user's name on first visit
+if (!userName) {
+  getUserName();
+}
