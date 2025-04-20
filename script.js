@@ -172,13 +172,13 @@ if (SpeechRecognition) {
 
   micButton.addEventListener("click", () => {
     recognition.start();
-    micButton.innerText = "🎙️"; // Active mic icon
+    micButton.innerText = "🎙️"; 
   });
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
     input.value = transcript;
-    sendMessage(); // Optional: send automatically
+    sendMessage();
     micButton.innerText = "🎤";
   };
 
