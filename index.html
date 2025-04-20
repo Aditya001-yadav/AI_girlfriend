@@ -5,11 +5,137 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Chat Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    #chat-container {
+      max-width: 700px;
+      margin: 20px auto;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #chat-box {
+      height: 500px;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: #daf1fc;
+      color: #333;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background-color: #f1f0f0;
+      color: #000;
+    }
+
+    .message-status {
+      font-size: 10px;
+      margin-left: 5px;
+    }
+
+    .message-status.single {
+      color: gray;
+    }
+
+    .message-status.blue {
+      color: #4a90e2;
+    }
+
+    .bot-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    #character-selection {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+
+    #input-area {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+
+    #input-area input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+    }
+
+    #input-area button,
+    .image-icon {
+      border: none;
+      background: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    #emoji-picker {
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
   <div id="chat-container">
     <div id="chat-box"></div>
+
+    <!-- Character Selection -->
+    <div id="character-selection">
+      <label for="character-dropdown">Select Character: </label>
+      <select id="character-dropdown">
+        <option value="Ishika">Ishika</option>
+        <option value="Mom">Mom</option>
+        <option value="Aditya">Aditya</option>
+        <option value="Dad">Dad</option>
+      </select>
+    </div>
 
     <div id="input-area">
       <button id="emoji-toggle">😊</button>
@@ -20,6 +146,7 @@
 
       <input type="text" id="user-input" placeholder="Type a message..." />
       <button id="send-btn">Send</button>
+
       <!-- Mic Button for voice input -->
       <button id="mic-btn">🎤</button>
     </div>
