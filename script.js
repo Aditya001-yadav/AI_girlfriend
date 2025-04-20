@@ -10,7 +10,6 @@ let language = "English";
 let userName = "";
 let currentCharacter = "Ishika";
 
-// Add message to chat box
 function addMessage(message, sender, status = '') {
   const msg = document.createElement("div");
   msg.className = `message ${sender}`;
@@ -45,7 +44,6 @@ function addMessage(message, sender, status = '') {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Convert image to base64
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -55,7 +53,6 @@ function toBase64(file) {
   });
 }
 
-// Send user message and get AI reply
 async function sendMessage() {
   const userMsg = input.value.trim();
   const imageFile = document.getElementById("image-upload").files[0];
@@ -128,15 +125,12 @@ async function sendMessage() {
   }
 }
 
-// Send button click
 sendButton.addEventListener("click", sendMessage);
 
-// Enter key press
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
 
-// Emoji toggle
 const emojiToggle = document.getElementById("emoji-toggle");
 const emojiPicker = document.getElementById("emoji-picker");
 
@@ -151,20 +145,17 @@ emojiPicker.addEventListener("click", (e) => {
   }
 });
 
-// Character change
 characterDropdown.addEventListener("change", (e) => {
   currentCharacter = e.target.value;
   addMessage(`${currentCharacter} is here! 😊 How are you feeling today?`, "ai");
 });
 
-// Get user name
 function getUserName() {
   const name = prompt("Hi! What's your name?");
   userName = name;
   addMessage(`Hi, ${userName}! 😊 I'm ${currentCharacter}. How are you feeling today?`, "ai");
 }
 
-// Ask name if not set
 if (!userName) {
   getUserName();
 }
