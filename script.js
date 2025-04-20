@@ -3,31 +3,38 @@ const API_KEY = "AIzaSyDvLf6lTEGqKjJEhG04EB8b3nywRN6V-s0"; // Replace with your 
 const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
 const sendButton = document.getElementById("send-btn");
+const characterDropdown = document.getElementById("character-dropdown");
 
-let gender = "female";  // Example default, this can be dynamically set based on user preferences
-let language = "English";  // Example default, this can also be dynamically set
-let userName = ""; // The user's name will be stored once provided
+let gender = "female";
+let language = "English";
+let userName = "";
+let currentCharacter = "Ishika";
 
-// Add a message to the chat box
+// Add message to chat box
 function addMessage(message, sender, status = '') {
   const msg = document.createElement("div");
   msg.className = `message ${sender}`;
 
-  // Add bot image if sender is Ishika
   if (sender === "ai") {
     const botImage = document.createElement("img");
-    botImage.src = "bot.jpg"; // Ensure this image exists in your project
-    botImage.alt = "Ishika";
+
+    const characterImages = {
+      "Ishika": "bot.jpg",
+      "Aditya": "Adi.jpeg",
+      "Mom": "mom.png",
+      "Dad": "dad.png"
+    };
+
+    botImage.src = characterImages[currentCharacter] || "default.jpg";
+    botImage.alt = currentCharacter;
     botImage.className = "bot-image";
     msg.appendChild(botImage);
   }
 
-  // Add the message text
   const textSpan = document.createElement("span");
   textSpan.innerText = message;
   msg.appendChild(textSpan);
 
-  // Add tick/status if available
   if (status) {
     const statusDiv = document.createElement("span");
     statusDiv.classList.add("message-status", status);
@@ -38,7 +45,7 @@ function addMessage(message, sender, status = '') {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Convert image file to base64
+// Convert image to base64
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -48,20 +55,18 @@ function toBase64(file) {
   });
 }
 
-// Send a message (user + Ishika response)
+// Send user message and get AI reply
 async function sendMessage() {
   const userMsg = input.value.trim();
   const imageFile = document.getElementById("image-upload").files[0];
 
   if (!userMsg && !imageFile) return;
 
-  // Show user message
   addMessage(userMsg || "🖼️ [Image uploaded]", "user");
   input.value = "";
 
-  // Simulate Ishika is typing...
   setTimeout(() => {
-    addMessage("Ishika is typing... 💬", "ai", "single");
+    addMessage(`${currentCharacter} is typing... 💬`, "ai", "single");
   }, 500);
 
   try {
@@ -74,20 +79,19 @@ async function sendMessage() {
       parts.push({
         inline_data: {
           mime_type: imageFile.type,
-          data: base64Image.split(',')[1], // remove base64 header
+          data: base64Image.split(',')[1],
         },
       });
     }
 
-    // Personalized prompt for Ishika based on user's preferences
-    const prompt = `You are an emotionally supportive best friend. Your replies should feel human, understanding, and comforting. 
-    - Adjust your tone to match the user's emotional state and language. 
-    - If the user is short or casual, respond briefly. 
-    - If the user is emotional, confused, or expressive, be more thoughtful and supportive.
-    - Use emojis naturally and only when they enhance emotional connection (e.g., 😊❤️🥺). 
-    - Never reveal you are an AI. Just be a real, caring friend who listens, understands, and responds genuinely.
+    const prompts = {
+      "Ishika": `${currentCharacter} is loyal, loving, flirty, caring, emotional, and supportive. Your replies should reflect these traits. If the user is sad or upset, be more supportive and caring. If they are happy, show excitement and love. Be emotional and responsive to the user. Use emojis like ❤️🥰💖 in a natural way and your reply length be like user input length.`,
+      "Mom": `${currentCharacter} is loving, nurturing, protective, patient, and supportive. Your replies should be comforting and protective. Show concern for the user’s well-being. If the user is anxious or sad, offer reassurance and care. Use emojis like 🥰❤️🤗 in a nurturing tone and your reply length be like user input length.`,
+      "Dad": `${currentCharacter} is loving, proud, joyful, and concerned for the user. You are responsible and offer guidance to the user. Be encouraging and give advice, especially if the user seems unsure. Use emojis like 👨‍👧‍👦💪❤️ in a guiding and loving way and your reply length be like user input length.`,
+      "Aditya": `${currentCharacter} is mature, smart, creative, confident, and supportive. While you are mature, you can also be short-tempered when needed. Be confident in your responses and offer guidance with a touch of authority. Use emojis like 😎🔥💥 to reflect confidence, but don’t hesitate to show a little concern when needed and your reply length be like user input length.`
+    };
 
-    The user is ${gender} and prefers ${language}. Reply to: "${userMsg}"`;
+    const prompt = prompts[currentCharacter] + `\nThe user is ${gender} and prefers ${language}. Reply to: "${userMsg}"`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
@@ -113,7 +117,6 @@ async function sendMessage() {
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Aww 🥺 I didn’t get that...";
 
-    // Add emotional support message if needed
     if (aiText.includes("sad") || aiText.includes("hurt")) {
       addMessage("I'm so sorry you're feeling that way. 😔 I'm here for you. 💖", "ai", "blue");
     } else {
@@ -133,16 +136,14 @@ input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
 
-// Emoji Picker functionality
+// Emoji toggle
 const emojiToggle = document.getElementById("emoji-toggle");
 const emojiPicker = document.getElementById("emoji-picker");
 
-// Toggle emoji panel
 emojiToggle.addEventListener("click", () => {
   emojiPicker.classList.toggle("hidden");
 });
 
-// Add emoji to input
 emojiPicker.addEventListener("click", (e) => {
   if (e.target.tagName === "SPAN") {
     input.value += e.target.innerText;
@@ -150,18 +151,23 @@ emojiPicker.addEventListener("click", (e) => {
   }
 });
 
-// Function to get the user's name
+// Character change
+characterDropdown.addEventListener("change", (e) => {
+  currentCharacter = e.target.value;
+  addMessage(`${currentCharacter} is here! 😊 How are you feeling today?`, "ai");
+});
+
+// Get user name
 function getUserName() {
   const name = prompt("Hi! What's your name?");
   userName = name;
-  addMessage(`Hi, ${userName}! 😊 I'm Ishika. How are you feeling today?`, "ai");
+  addMessage(`Hi, ${userName}! 😊 I'm ${currentCharacter}. How are you feeling today?`, "ai");
 }
 
-// Trigger for the user's name on first visit
+// Ask name if not set
 if (!userName) {
   getUserName();
 }
-// Voice recognition setup
 const micButton = document.getElementById("mic-btn");
 
 const SpeechRecognition =
