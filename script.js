@@ -6,7 +6,7 @@ const sendButton = document.getElementById("send-btn");
 const characterDropdown = document.getElementById("character-dropdown");
 
 let gender = "female";
-let language = "English";
+let language = "Hinglish";
 let userName = "";
 let currentCharacter = "Ishika";
 
