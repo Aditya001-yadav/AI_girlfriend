@@ -162,3 +162,41 @@ function getUserName() {
 if (!userName) {
   getUserName();
 }
+// Voice recognition setup
+const micButton = document.getElementById("mic-btn");
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  micButton.addEventListener("click", () => {
+    recognition.start();
+    micButton.innerText = "🎙️"; // Active mic icon
+  });
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    input.value = transcript;
+    sendMessage(); // Optional: send automatically
+    micButton.innerText = "🎤";
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Speech recognition error:", event.error);
+    micButton.innerText = "🎤";
+    addMessage("Sorry 😢 I couldn't hear you. Please try again.", "ai");
+  };
+
+  recognition.onend = () => {
+    micButton.innerText = "🎤";
+  };
+} else {
+  micButton.disabled = true;
+  micButton.title = "Speech Recognition not supported in this browser";
+}
+
